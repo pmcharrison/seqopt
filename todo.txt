@@ -1,5 +1,0 @@
-- Define some cost functions
-- Compute cost matrix for an entire chord sequence
-- Add regression test for cost matrix
-- Make default cost list
-- Implement dynamic programming solution
