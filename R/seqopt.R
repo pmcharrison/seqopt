@@ -1,7 +1,16 @@
 #' @export
-find_best_seq <- function(x, cost_funs = default_cost_funs()) {
+seq_opt <- function(x, cost_funs = default_cost_funs()) {
   N <- length(x)
+
+  # Element i of <costs> is a numeric vector,
+  # the jth element of which corresponds to the
+  # minimal (i.e. best) cost of the journey to x[[i]][[j]].
   costs <- vector(mode = "list", length = N)
+
+  # Element i of <prev_states> is a numeric vector,
+  # the jth element of which corresponds to the
+  # predecessor to x[[i]][[j]] (i.e. a member of x[[i - 1]])
+  # that achieves minimal cost.
   prev_states <- vector(mode = "list", length = N)
 
   if (N == 0) return(NULL)

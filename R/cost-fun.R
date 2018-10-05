@@ -1,9 +1,11 @@
 cost_fun <- function(context_sensitive,
                      f,
                      weight = 1) {
-  stopifnot(is.scalar.logical(context_sensitive),
+  stopifnot(is.logical(context_sensitive),
+            length(context_sensitive) == 1L,
             is.function(f),
-            is.scalar.numeric(weight))
+            is.numeric(weight),
+            length(weight) == 1L)
   x <- as.list(environment())
   class(x) <- "cost_fun"
   x

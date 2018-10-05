@@ -1,9 +1,9 @@
-Package: voiceR
-Title: Finding Optimal Voicings for Chord Sequences
+Package: seqopt
+Title: Finding optimal sequences with dynamic programming
 Version: 0.0.0.9000
 Authors@R: person("Peter", "Harrison", email = "pmc.harrison@gmail.com", role = c("aut", "cre"))
-Description: Chord sequences can be voiced in different ways, some better than others. This package tries to find optimal voicings for chord sequences.
-Depends: R (>= 3.5.1)
+Description: Given a list of timepoints and corresponding lists of possible states, efficiently finds an optimal state sequence that minimises an arbitrary transition cost function.
+Depends: R (>= 3.4.0)
 License: MIT
 Encoding: UTF-8
 LazyData: true
