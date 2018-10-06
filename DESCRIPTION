@@ -4,11 +4,13 @@ Version: 0.0.0.9000
 Authors@R: person("Peter", "Harrison", email = "pmc.harrison@gmail.com", role = c("aut", "cre"))
 Description: Given a list of timepoints and corresponding lists of possible states, efficiently finds an optimal state sequence that minimises an arbitrary transition cost function.
 Depends: R (>= 3.4.0)
-License: MIT
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests: 
-    testthat
+    testthat (>= 2.0.0)
 RoxygenNote: 6.1.0
 Imports: 
-    zeallot
+    purrr (>= 0.2.5),
+    zeallot (>= 0.1.0),
+    methods

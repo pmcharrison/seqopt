@@ -1,4 +1,4 @@
 library(testthat)
-library(voiceR)
+library(seqopt)
 
-test_check("voiceR")
+test_check("seqopt")

@@ -1,5 +1,33 @@
+#' Find optimal sequence
+#'
+#' Given a list of timepoints and corresponding lists of possible states,
+#' efficiently finds an optimal state sequence that minimises an arbitrary transition cost function.
+#' The implementation uses dynamic programming to achieve complexity
+#' linear in the sequence length
+#' and quadratic in the number of possible states.
+#' @param x A nested list describing the possible states at the possible time points.
+#' Element \code{x[[i]]} should be a list describing the states available
+#' at timepoint \code{i}.
+#' Element \code{x[[i]][[j]]} should be the \code{j}th possible state
+#' at timepoint \code{i}.
+#' @param cost_funs A list of cost functions,
+#' with each cost function created by \code{cost_fun()}.
+#' When applied to a state transition,
+#' each cost function is computed, weighted by its weight parameter,
+#' and summed to provide the total cost.
+#' Decomposition of cost functions in this way has efficiency benefits
+#' when some of the cost functions are context-independent
+#' (i.e. the cost associated with moving to a state is independent of
+#' the previous state).
+#' @return A list where element \code{i} corresponds to the optimal
+#' state at timepoint \code{i}.
 #' @export
-seq_opt <- function(x, cost_funs = default_cost_funs()) {
+seq_opt <- function(x, cost_funs) {
+  if (!is.list(cost_funs) ||
+      !all(purrr::map_lgl(cost_funs, function(y) is(y, "cost_fun"))))
+    stop("cost_funs must be a list of cost functions, ",
+         "with each cost function created by cost_fun()")
+
   N <- length(x)
 
   # Element i of <costs> is a numeric vector,
