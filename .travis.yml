@@ -8,4 +8,4 @@ os:
   - linux
   - osx
 after_success:
-    - Rscript -e 'covr::coveralls()'
+  - Rscript -e 'covr::coveralls()'
