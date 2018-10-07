@@ -45,13 +45,15 @@ seq_opt <- function(x, cost_funs, progress = FALSE) {
 
   if (N == 0) return(NULL)
 
+  if (progress) pb <- utils::txtProgressBar(max = N, style = 3)
+
   costs[[1L]] <- purrr::map_dbl(x[[1L]], function(y) {
     sum(costs(cost_funs = cost_funs, context = NULL, x = y))
   })
   prev_states[[1L]] <- rep(as.integer(NA), times = length(x[[1L]]))
 
-  if (progress && N > 1L)
-    pb <- utils::txtProgressBar(min = 2L, max = N, initial = 2L, style = 3)
+  if (progress) utils::setTxtProgressBar(pb, 1)
+
   for (i in seq(from = 2L, length.out = N - 1L)) {
     prev_states[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
     costs[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
@@ -62,9 +64,9 @@ seq_opt <- function(x, cost_funs, progress = FALSE) {
                                               new_state_value = x[[i]][[j]],
                                               cost_funs = cost_funs)
     }
-    if (progress) utils::setTxtProgressBar(pb, value = i)
+    if (progress) utils::setTxtProgressBar(pb, i)
   }
-  if (exists("pb")) close(pb)
+  if (progress) close(pb)
 
   chosen_path <- rep(as.integer(NA), times = N)
   chosen_path[N] <- which.min(costs[[N]])
