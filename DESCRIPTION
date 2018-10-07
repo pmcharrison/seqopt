@@ -14,6 +14,8 @@ RoxygenNote: 6.1.0
 Imports: 
     purrr (>= 0.2.5),
     zeallot (>= 0.1.0),
-    methods
+    methods,
+    checkmate,
+    utils
 URL: https://github.com/pmcharrison/seqopt
 BugReports: https://github.com/pmcharrison/seqopt/issues

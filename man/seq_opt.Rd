@@ -4,7 +4,7 @@
 \alias{seq_opt}
 \title{Find optimal sequence}
 \usage{
-seq_opt(x, cost_funs)
+seq_opt(x, cost_funs, progress = FALSE)
 }
 \arguments{
 \item{x}{A nested list describing the possible states at the possible time points.
@@ -22,6 +22,8 @@ Decomposition of cost functions in this way has efficiency benefits
 when some of the cost functions are context-independent
 (i.e. the cost associated with moving to a state is independent of
 the previous state).}
+
+\item{progress}{Whether or not to show a progress bar.}
 }
 \value{
 A list where element \code{i} corresponds to the optimal

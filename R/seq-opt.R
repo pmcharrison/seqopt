@@ -19,14 +19,16 @@
 #' when some of the cost functions are context-independent
 #' (i.e. the cost associated with moving to a state is independent of
 #' the previous state).
+#' @param progress Whether or not to show a progress bar.
 #' @return A list where element \code{i} corresponds to the optimal
 #' state at timepoint \code{i}.
 #' @export
-seq_opt <- function(x, cost_funs) {
+seq_opt <- function(x, cost_funs, progress = FALSE) {
   if (!is.list(cost_funs) ||
       !all(purrr::map_lgl(cost_funs, function(y) is(y, "cost_fun"))))
     stop("cost_funs must be a list of cost functions, ",
          "with each cost function created by cost_fun()")
+  checkmate::qassert(progress, "B1")
 
   N <- length(x)
 
@@ -48,6 +50,8 @@ seq_opt <- function(x, cost_funs) {
   })
   prev_states[[1L]] <- rep(as.integer(NA), times = length(x[[1L]]))
 
+  if (progress && N > 1L)
+    pb <- utils::txtProgressBar(min = 2L, max = N, initial = 2L, style = 3)
   for (i in seq(from = 2L, length.out = N - 1L)) {
     prev_states[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
     costs[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
@@ -58,7 +62,9 @@ seq_opt <- function(x, cost_funs) {
                                               new_state_value = x[[i]][[j]],
                                               cost_funs = cost_funs)
     }
+    if (progress) utils::setTxtProgressBar(pb, value = i)
   }
+  if (exists("pb")) close(pb)
 
   chosen_path <- rep(as.integer(NA), times = N)
   chosen_path[N] <- which.min(costs[[N]])
