@@ -1,3 +1,4 @@
+* Significant efficiency improvements, reducing evaluation of cost functions
 * Adding progress bar
 
 # seqopt 0.1.0

@@ -37,32 +37,34 @@ seq_opt <- function(x, cost_funs, progress = FALSE) {
   # minimal (i.e. best) cost of the journey to x[[i]][[j]].
   costs <- vector(mode = "list", length = N)
 
-  # Element i of <prev_states> is a numeric vector,
+  # Element i of <best_prev_states> is a numeric vector,
   # the jth element of which corresponds to the
   # predecessor to x[[i]][[j]] (i.e. a member of x[[i - 1]])
   # that achieves minimal cost.
-  prev_states <- vector(mode = "list", length = N)
+  best_prev_states <- vector(mode = "list", length = N)
 
   if (N == 0) return(NULL)
 
   if (progress) pb <- utils::txtProgressBar(max = N, style = 3)
 
-  costs[[1L]] <- purrr::map_dbl(x[[1L]], function(y) {
-    sum(costs(cost_funs = cost_funs, context = NULL, x = y))
-  })
-  prev_states[[1L]] <- rep(as.integer(NA), times = length(x[[1L]]))
+  costs[[1L]] <- get_initial_costs(x = x, cost_funs = cost_funs)
+
+  best_prev_states[[1L]] <- rep(as.integer(NA), times = length(x[[1L]]))
 
   if (progress) utils::setTxtProgressBar(pb, 1)
 
   for (i in seq(from = 2L, length.out = N - 1L)) {
-    prev_states[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
+    # i = time point
+    best_prev_states[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
     costs[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
     for (j in seq_along(x[[i]])) {
-      c(prev_states[[i]][[j]],
-        costs[[i]][[j]]) %<-% best_prev_state(prev_state_values = x[[i - 1L]],
-                                              prev_state_costs = costs[[i - 1L]],
-                                              new_state_value = x[[i]][[j]],
-                                              cost_funs = cost_funs)
+      # j = potential state at time point i
+      tmp <- best_prev_state(prev_state_values = x[[i - 1L]],
+                             prev_state_costs = costs[[i - 1L]],
+                             new_state_value = x[[i]][[j]],
+                             cost_funs = cost_funs)
+      best_prev_states[[i]][[j]] <- tmp[[1]]
+      costs[[i]][[j]] <- tmp[[2]]
     }
     if (progress) utils::setTxtProgressBar(pb, i)
   }
@@ -73,7 +75,7 @@ seq_opt <- function(x, cost_funs, progress = FALSE) {
   chosen_cost <- costs[[N]][chosen_path[N]]
 
   for (i in seq(from = N - 1L, by = - 1L, length.out = N - 1L)) {
-    chosen_path[i] <- prev_states[[i + 1L]][chosen_path[i + 1L]]
+    chosen_path[i] <- best_prev_states[[i + 1L]][chosen_path[i + 1L]]
   }
 
   res <- purrr::map2(x, chosen_path, function(a, b) a[[b]])
@@ -86,11 +88,9 @@ best_prev_state <- function(prev_state_values,
                             new_state_value,
                             cost_funs) {
   costs <- prev_state_costs +
-    purrr::map_dbl(prev_state_values, function(prev_state_value) {
-      sum(costs(cost_funs = cost_funs,
-                context = prev_state_value,
-                x = new_state_value))
-    })
+    cost_by_prev_state(prev_state_values = prev_state_values,
+                       new_state_value = new_state_value,
+                       cost_funs = cost_funs)
   i <- which.min(costs)
   list(best_prev_state = i, cost = costs[i])
 }
