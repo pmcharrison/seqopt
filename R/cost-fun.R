@@ -15,6 +15,7 @@
 #' and the second corresponding to the new state.
 #' If \code{context_sensitive = FALSE}, this function should take one argument
 #' corresponding to the new state.
+#' @param vectorised
 #' @param weight Scalar numeric;
 #' defines the multiplicative weight parameter for the cost function
 #' when \code{seq_opt()} combines cost functions.
@@ -23,13 +24,21 @@
 #' @export
 cost_fun <- function(context_sensitive,
                      f,
+                     memoise = FALSE,
+                     vectorised = FALSE,
                      weight = 1) {
-  stopifnot(is.logical(context_sensitive),
-            length(context_sensitive) == 1L,
-            is.function(f),
-            is.numeric(weight),
-            length(weight) == 1L)
-  x <- as.list(environment())
+  checkmate::qassert(context_sensitive, "B1")
+  checkmate::qassert(memoise, "B1")
+  checkmate::qassert(vectorised, "B1")
+  checkmate::qassert(weight, "N1")
+  stopifnot(is.function(f))
+  fun <- if (context_sensitive && !vectorised) {
+    function(contexts, b) vapply(contexts, function(context) f(context, b), numeric(1))
+  } else f
+  if (memoise) fun <- memoise::memoise(fun)
+  x <- list(context_sensitive = context_sensitive,
+            fun = fun,
+            weight = weight)
   class(x) <- "cost_fun"
   x
 }

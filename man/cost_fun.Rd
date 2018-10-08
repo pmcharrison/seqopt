@@ -4,7 +4,8 @@
 \alias{cost_fun}
 \title{Cost function}
 \usage{
-cost_fun(context_sensitive, f, weight = 1)
+cost_fun(context_sensitive, f, memoise = FALSE, vectorised = FALSE,
+  weight = 1)
 }
 \arguments{
 \item{context_sensitive}{Scalar Boolean;
