@@ -1,11 +1,11 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-seqopt - Finding optimal sequences with dynamic programming
-===========================================================
+seqopt v0.2.1
+=============
 
-[![Travis build status](https://travis-ci.com/pmcharrison/seqopt.svg?branch=master)](https://travis-ci.org/pmcharrison/seqopt) [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/pmcharrison/seqopt?branch=master&svg=true)](https://ci.appveyor.com/project/pmcharrison/seqopt) [![Coverage status](https://img.shields.io/coveralls/github/pmcharrison/seqopt.svg)](https://coveralls.io/r/pmcharrison/seqopt?branch=master)
+[![Travis build status](https://travis-ci.com/pmcharrison/seqopt.svg?branch=master)](https://travis-ci.org/pmcharrison/seqopt) [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/pmcharrison/seqopt?branch=master&svg=true)](https://ci.appveyor.com/project/pmcharrison/seqopt) [![Coverage status](https://coveralls.io/repos/github/pmcharrison/seqopt/badge.svg)](https://coveralls.io/r/pmcharrison/seqopt?branch=master)
 
-Given a list of timepoints and corresponding lists of possible states, `seq_opt()` efficiently finds an optimal state sequence that minimises an arbitrary transition cost function.
+`seqopt` is an R package for finding optimal sequences with dynamic programming. Given a list of timepoints and corresponding lists of possible states, `seq_opt()` efficiently finds an optimal state sequence that minimises an arbitrary transition cost function.
 
 Installation
 ------------
