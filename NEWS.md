@@ -1,3 +1,5 @@
+# seqopt 0.2.1
+
 * Updating documentation
 
 # seqopt 0.2.0
