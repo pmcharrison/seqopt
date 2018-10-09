@@ -20,6 +20,11 @@ and the second corresponding to the new state.
 If \code{context_sensitive = FALSE}, this function should take one argument
 corresponding to the new state.}
 
+\item{memoise}{Scalar Boolean;
+whether or not the cost function should be memoised.
+Defaults to \code{FALSE}, but enable this when the cost function
+is time-consuming to compute and repeated transitions are anticipated.}
+
 \item{vectorised}{Scalar Boolean;
 whether or not \code{f} is vectorised.
 If \code{f} is vectorised, it should take as its first input a
