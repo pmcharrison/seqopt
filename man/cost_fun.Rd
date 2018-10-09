@@ -20,6 +20,14 @@ and the second corresponding to the new state.
 If \code{context_sensitive = FALSE}, this function should take one argument
 corresponding to the new state.}
 
+\item{vectorised}{Scalar Boolean;
+whether or not \code{f} is vectorised.
+If \code{f} is vectorised, it should take as its first input a
+list of potential previous states,
+with its second input being the new state, as before.
+It should then return a numeric vector corresponding to the
+transition cost associated with each potential previous state.}
+
 \item{weight}{Scalar numeric;
 defines the multiplicative weight parameter for the cost function
 when \code{seq_opt()} combines cost functions.}
