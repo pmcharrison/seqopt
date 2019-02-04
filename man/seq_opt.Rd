@@ -4,7 +4,8 @@
 \alias{seq_opt}
 \title{Find optimal sequence}
 \usage{
-seq_opt(x, cost_funs, progress = FALSE, norm_cost = FALSE)
+seq_opt(x, cost_funs, progress = FALSE, norm_cost = FALSE,
+  exponentiate = FALSE)
 }
 \arguments{
 \item{x}{A nested list describing the possible states at the possible time points.
@@ -25,12 +26,15 @@ the previous state).}
 
 \item{progress}{Whether or not to show a progress bar.}
 
-\item{norm_cost}{(Logical)
+\item{norm_cost}{(Logical scalar)
 Whether or not the cost at each transition
 (conditioned on the previous state)
 should be normalised to sum to 1
 for the set of possible continuations.
 This yields a probabilistic interpretation of the cost function.}
+
+\item{exponentiate}{(Logical scalar)
+Whether the combined cost function should be exponentiated.}
 }
 \value{
 A list where element \code{i} corresponds to the optimal

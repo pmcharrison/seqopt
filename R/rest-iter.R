@@ -1,5 +1,5 @@
 rest_iter <- function(i, costs, x, cost_funs, norm_cost,
-                      best_prev_states) {
+                      best_prev_states, exponentiate) {
   # i = time point
   best_prev_states[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
   costs[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
@@ -13,7 +13,8 @@ rest_iter <- function(i, costs, x, cost_funs, norm_cost,
   for (j in seq_along(x[[i]])) {
     cost_matrix[j, ] <- cost_by_prev_state(prev_state_values = x[[i - 1L]],
                                            new_state_value = x[[i]][[j]],
-                                           cost_funs = cost_funs)
+                                           cost_funs = cost_funs,
+                                           exponentiate = exponentiate)
   }
 
   # If appropriate, normalise the cost matrix within each previous state
