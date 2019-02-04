@@ -10,10 +10,10 @@ LazyData: true
 Suggests: 
     testthat (>= 2.0.0),
     covr (>= 3.2.0)
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Imports: 
     purrr (>= 0.2.5),
-    zeallot (>= 0.1.0),
+    zeallot,
     methods,
     checkmate (>= 1.8.5),
     utils,

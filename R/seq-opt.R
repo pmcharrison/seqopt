@@ -20,97 +20,41 @@
 #' (i.e. the cost associated with moving to a state is independent of
 #' the previous state).
 #' @param progress Whether or not to show a progress bar.
+#' @param norm_cost (Logical)
+#' Whether or not the cost at each transition
+#' (conditioned on the previous state)
+#' should be normalised to sum to 1
+#' for the set of possible continuations.
+#' This yields a probabilistic interpretation of the cost function.
 #' @return A list where element \code{i} corresponds to the optimal
 #' state at timepoint \code{i}.
 #' @export
 seq_opt <- function(x, cost_funs, progress = FALSE, norm_cost = FALSE) {
+  check_inputs(cost_funs, progress)
+
+  N <- length(x)
+  if (N == 0) return(NULL)
+  costs <- init_costs(N)
+  best_prev_states <- init_best_prev_states(N, x)
+
+  if (progress) pb <- utils::txtProgressBar(max = N, style = 3)
+  costs <- first_iter(costs, x, cost_funs, norm_cost)
+  if (progress) utils::setTxtProgressBar(pb, 1)
+
+  for (i in seq(from = 2L, length.out = N - 1L)) {
+    c(costs, best_prev_states) %<-% rest_iter(i, costs, x, cost_funs, norm_cost,
+                                              best_prev_states)
+    if (progress) utils::setTxtProgressBar(pb, i)
+  }
+
+  if (progress) close(pb)
+  find_path(x, costs, best_prev_states, N)
+}
+
+check_inputs <- function(cost_funs, progress) {
   if (!is.list(cost_funs) ||
       !all(purrr::map_lgl(cost_funs, function(y) is(y, "cost_fun"))))
     stop("cost_funs must be a list of cost functions, ",
          "with each cost function created by cost_fun()")
   checkmate::qassert(progress, "B1")
-
-  N <- length(x)
-
-  # Element i of <costs> is a numeric vector,
-  # the jth element of which corresponds to the
-  # minimal (i.e. best) cost of the journey to x[[i]][[j]].
-  costs <- vector(mode = "list", length = N)
-
-  # Element i of <best_prev_states> is a numeric vector,
-  # the jth element of which corresponds to the
-  # predecessor to x[[i]][[j]] (i.e. a member of x[[i - 1]])
-  # that achieves minimal cost.
-  best_prev_states <- vector(mode = "list", length = N)
-
-  if (N == 0) return(NULL)
-
-  if (progress) pb <- utils::txtProgressBar(max = N, style = 3)
-
-  costs[[1L]] <- get_initial_costs(x, cost_funs, norm_cost)
-
-  best_prev_states[[1L]] <- rep(as.integer(NA), times = length(x[[1L]]))
-
-  if (progress) utils::setTxtProgressBar(pb, 1)
-
-  for (i in seq(from = 2L, length.out = N - 1L)) {
-    # i = time point
-    best_prev_states[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
-    costs[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
-
-    # cost_matrix:
-    # j (rows): new_state
-    # k (cols): previous state
-    cost_matrix <- matrix(nrow = length(x[[i]]),
-                          ncol = length(x[[i - 1]]))
-
-    for (j in seq_along(x[[i]])) {
-      cost_matrix[j, ] <- cost_by_prev_state(prev_state_values = x[[i - 1L]],
-                                             new_state_value = x[[i]][[j]],
-                                             cost_funs = cost_funs)
-    }
-
-    # If appropriate, normalise the cost matrix
-    # (esp. for probabilistic formulations)
-    if (norm_cost) cost_matrix <- apply(cost_matrix, 2, normalise)
-
-    # Add the accumulated costs for each previous state
-    for (k in seq_along(x[[i - 1L]])) {
-      cost_matrix <- apply(cost_matrix, 1, function(m) m + costs[[i - 1L]])
-    }
-
-    # For each new state, identify which would be the best previous state
-    for (j in seq_along(x[[i]])) {
-      ind <- which.min(cost_matrix[j, ])
-      best_prev_states[[i]][[j]] <- ind
-      costs[[i]][[j]] <- cost_matrix[j, ind]
-    }
-
-    if (progress) utils::setTxtProgressBar(pb, i)
-  }
-  if (progress) close(pb)
-
-  chosen_path <- rep(as.integer(NA), times = N)
-  chosen_path[N] <- which.min(costs[[N]])
-  chosen_cost <- costs[[N]][chosen_path[N]]
-
-  for (i in seq(from = N - 1L, by = - 1L, length.out = N - 1L)) {
-    chosen_path[i] <- best_prev_states[[i + 1L]][chosen_path[i + 1L]]
-  }
-
-  res <- purrr::map2(x, chosen_path, function(a, b) a[[b]])
-  attr(res, "cost") <- chosen_cost
-  res
-}
-
-best_prev_state <- function(prev_state_values,
-                            prev_state_costs,
-                            new_state_value,
-                            cost_funs) {
-  costs <- prev_state_costs +
-    cost_by_prev_state(prev_state_values = prev_state_values,
-                       new_state_value = new_state_value,
-                       cost_funs = cost_funs)
-  i <- which.min(costs)
-  list(best_prev_state = i, cost = costs[i])
 }
