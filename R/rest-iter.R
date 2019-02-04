@@ -16,14 +16,15 @@ rest_iter <- function(i, costs, x, cost_funs, norm_cost,
                                            cost_funs = cost_funs)
   }
 
-  # If appropriate, normalise the cost matrix
-  # (esp. for probabilistic formulations)
-  if (norm_cost) cost_matrix <- apply(cost_matrix, 2, normalise)
+  # If appropriate, normalise the cost matrix within each previous state
+  # (esp. appropriate for probabilistic formulations)
+  if (norm_cost)
+    for (k in seq_len(ncol(cost_matrix)))
+      cost_matrix[, k] <- normalise(cost_matrix[, k])
 
   # Add the accumulated costs for each previous state
-  for (k in seq_along(x[[i - 1L]])) {
-    cost_matrix <- apply(cost_matrix, 1, function(m) m + costs[[i - 1L]])
-  }
+  for (j in seq_len(nrow(cost_matrix)))
+    cost_matrix[j, ] <- cost_matrix[j, ] + costs[[i - 1L]]
 
   # For each new state, identify which would be the best previous state
   for (j in seq_along(x[[i]])) {
