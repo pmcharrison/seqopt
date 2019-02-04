@@ -33,3 +33,13 @@ test_that("Changing available states", {
   res <- unlist(seq_opt(x, cost_funs))
   expect_equal(res, c(10, 28, 37, 46, 55, 64, 73, 82, 91, 100))
 })
+
+test_that("Weight sensitivity", {
+  x <- lapply(1:10, function(x) 1:10)
+  cost_funs <- list(cost_fun(FALSE, function(x) x))
+  res <- seq_opt(x, cost_funs)
+  expect_equal(unlist(res), rep(1, times = 10)) # prefers small numbers
+  cost_funs <- list(cost_fun(FALSE, function(x) x, weight = -1))
+  res <- seq_opt(x, cost_funs)
+  expect_equal(unlist(res), rep(10, times = 10)) # prefers large numbers
+})
