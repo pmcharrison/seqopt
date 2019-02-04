@@ -23,7 +23,7 @@
 #' @return A list where element \code{i} corresponds to the optimal
 #' state at timepoint \code{i}.
 #' @export
-seq_opt <- function(x, cost_funs, progress = FALSE) {
+seq_opt <- function(x, cost_funs, progress = FALSE, norm_cost = FALSE) {
   if (!is.list(cost_funs) ||
       !all(purrr::map_lgl(cost_funs, function(y) is(y, "cost_fun"))))
     stop("cost_funs must be a list of cost functions, ",
@@ -47,7 +47,7 @@ seq_opt <- function(x, cost_funs, progress = FALSE) {
 
   if (progress) pb <- utils::txtProgressBar(max = N, style = 3)
 
-  costs[[1L]] <- get_initial_costs(x = x, cost_funs = cost_funs)
+  costs[[1L]] <- get_initial_costs(x, cost_funs, norm_cost)
 
   best_prev_states[[1L]] <- rep(as.integer(NA), times = length(x[[1L]]))
 
@@ -57,15 +57,35 @@ seq_opt <- function(x, cost_funs, progress = FALSE) {
     # i = time point
     best_prev_states[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
     costs[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
+
+    # cost_matrix:
+    # j (rows): new_state
+    # k (cols): previous state
+    cost_matrix <- matrix(nrow = length(x[[i]]),
+                          ncol = length(x[[i - 1]]))
+
     for (j in seq_along(x[[i]])) {
-      # j = potential state at time point i
-      tmp <- best_prev_state(prev_state_values = x[[i - 1L]],
-                             prev_state_costs = costs[[i - 1L]],
-                             new_state_value = x[[i]][[j]],
-                             cost_funs = cost_funs)
-      best_prev_states[[i]][[j]] <- tmp[[1]]
-      costs[[i]][[j]] <- tmp[[2]]
+      cost_matrix[j, ] <- cost_by_prev_state(prev_state_values = x[[i - 1L]],
+                                             new_state_value = x[[i]][[j]],
+                                             cost_funs = cost_funs)
     }
+
+    # If appropriate, normalise the cost matrix
+    # (esp. for probabilistic formulations)
+    if (norm_cost) cost_matrix <- apply(cost_matrix, 2, normalise)
+
+    # Add the accumulated costs for each previous state
+    for (k in seq_along(x[[i - 1L]])) {
+      cost_matrix <- apply(cost_matrix, 1, function(m) m + costs[[i - 1L]])
+    }
+
+    # For each new state, identify which would be the best previous state
+    for (j in seq_along(x[[i]])) {
+      ind <- which.min(cost_matrix[j, ])
+      best_prev_states[[i]][[j]] <- ind
+      costs[[i]][[j]] <- cost_matrix[j, ind]
+    }
+
     if (progress) utils::setTxtProgressBar(pb, i)
   }
   if (progress) close(pb)

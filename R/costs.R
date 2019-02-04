@@ -15,15 +15,14 @@ cost_by_prev_state <- function(prev_state_values, new_state_value, cost_funs) {
   rowSums(x)
 }
 
-get_initial_costs <- function(x, cost_funs) {
-  purrr::map_dbl(x[[1L]], function(val) {
+get_initial_costs <- function(x, cost_funs, norm_cost) {
+  res <- purrr::map_dbl(x[[1L]], function(val) {
     sum(
       purrr::map_dbl(cost_funs, function(f) {
-        res <- if (f$context_sensitive) 0 else f$fun(val)
-        if (length(res) != 1L) stop("cost function returned wrong number of outputs")
-        res
+        if (f$context_sensitive) 0 else f$fun(val)
       }))
   })
+  if (norm_cost) normalise(res) else res
 }
 
 
