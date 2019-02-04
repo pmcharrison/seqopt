@@ -1,5 +1,5 @@
 rest_iter <- function(i, costs, x, cost_funs, norm_cost,
-                      best_prev_states, exponentiate) {
+                      best_prev_states, exponentiate, minimise) {
   # i = time point
   best_prev_states[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
   costs[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
@@ -29,7 +29,7 @@ rest_iter <- function(i, costs, x, cost_funs, norm_cost,
 
   # For each new state, identify which would be the best previous state
   for (j in seq_along(x[[i]])) {
-    ind <- which.min(cost_matrix[j, ])
+    ind <- if (minimise) which.min(cost_matrix[j, ]) else which.max(cost_matrix[j, ])
     best_prev_states[[i]][[j]] <- ind
     costs[[i]][[j]] <- cost_matrix[j, ind]
   }

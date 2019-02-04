@@ -43,3 +43,13 @@ test_that("Weight sensitivity", {
   res <- seq_opt(x, cost_funs)
   expect_equal(unlist(res), rep(10, times = 10)) # prefers large numbers
 })
+
+test_that("Minimise versus maximise", {
+  x <- lapply(1:10, function(x) 1:10)
+  cost_funs <- list(cost_fun(FALSE, function(x) x))
+  res <- seq_opt(x, cost_funs)
+  expect_equal(unlist(res), rep(1, times = 10)) # prefers small numbers
+
+  res <- seq_opt(x, cost_funs, minimise = FALSE)
+  expect_equal(unlist(res), rep(10, times = 10)) # prefers large numbers
+})

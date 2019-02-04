@@ -5,7 +5,7 @@
 \title{Find optimal sequence}
 \usage{
 seq_opt(x, cost_funs, progress = FALSE, norm_cost = FALSE,
-  exponentiate = FALSE)
+  exponentiate = FALSE, minimise = TRUE)
 }
 \arguments{
 \item{x}{A nested list describing the possible states at the possible time points.
@@ -35,6 +35,9 @@ This yields a probabilistic interpretation of the cost function.}
 
 \item{exponentiate}{(Logical scalar)
 Whether the combined cost function should be exponentiated.}
+
+\item{minimise}{(Logical scalar)
+Whether the cost function should be minimised or maximised.}
 }
 \value{
 A list where element \code{i} corresponds to the optimal
@@ -42,7 +45,8 @@ state at timepoint \code{i}.
 }
 \description{
 Given a list of timepoints and corresponding lists of possible states,
-efficiently finds an optimal state sequence that minimises an arbitrary transition cost function.
+efficiently finds an optimal state sequence that minimises (or maximises)
+ an arbitrary transition cost function.
 The implementation uses dynamic programming to achieve complexity
 linear in the sequence length
 and quadratic in the number of possible states.

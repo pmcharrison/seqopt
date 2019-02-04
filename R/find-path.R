@@ -1,6 +1,6 @@
-find_path <- function(x, costs, best_prev_states, N) {
+find_path <- function(x, costs, best_prev_states, N, minimise) {
   path <- rep(as.integer(NA), times = N)
-  path[N] <- which.min(costs[[N]])
+  path[N] <- if (minimise) which.min(costs[[N]]) else which.max(costs[[N]])
   cost <- costs[[N]][path[N]]
 
   for (i in seq(from = N - 1L, by = - 1L, length.out = N - 1L)) {

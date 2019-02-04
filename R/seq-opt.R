@@ -1,7 +1,8 @@
 #' Find optimal sequence
 #'
 #' Given a list of timepoints and corresponding lists of possible states,
-#' efficiently finds an optimal state sequence that minimises an arbitrary transition cost function.
+#' efficiently finds an optimal state sequence that minimises (or maximises)
+#'  an arbitrary transition cost function.
 #' The implementation uses dynamic programming to achieve complexity
 #' linear in the sequence length
 #' and quadratic in the number of possible states.
@@ -28,6 +29,8 @@
 #' This yields a probabilistic interpretation of the cost function.
 #' @param exponentiate (Logical scalar)
 #' Whether the combined cost function should be exponentiated.
+#' @param minimise (Logical scalar)
+#' Whether the cost function should be minimised or maximised.
 #' @return A list where element \code{i} corresponds to the optimal
 #' state at timepoint \code{i}.
 #' @export
@@ -35,7 +38,8 @@ seq_opt <- function(x,
                     cost_funs,
                     progress = FALSE,
                     norm_cost = FALSE,
-                    exponentiate = FALSE) {
+                    exponentiate = FALSE,
+                    minimise = TRUE) {
   check_inputs(cost_funs, progress, norm_cost, exponentiate)
 
   N <- length(x)
@@ -49,12 +53,13 @@ seq_opt <- function(x,
 
   for (i in seq(from = 2L, length.out = N - 1L)) {
     c(costs, best_prev_states) %<-% rest_iter(i, costs, x, cost_funs, norm_cost,
-                                              best_prev_states, exponentiate)
+                                              best_prev_states, exponentiate,
+                                              minimise)
     if (progress) utils::setTxtProgressBar(pb, i)
   }
 
   if (progress) close(pb)
-  find_path(x, costs, best_prev_states, N)
+  find_path(x, costs, best_prev_states, N, minimise)
 }
 
 check_inputs <- function(cost_funs, progress, norm_cost, exponentiate) {
