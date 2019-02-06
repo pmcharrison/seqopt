@@ -36,7 +36,7 @@ cost_fun <- function(f,
   check_cost_fun(context_sensitive, f, memoise, vectorised)
   res <- if (context_sensitive && !vectorised)
     function(contexts, b) purrr::map_dbl(contexts, ~ f(., b)) else
-      f
+      function(x) as.numeric(f(x))
   if (memoise) res <- memoise::memoise(res)
   attr(res, "context_sensitive") <- context_sensitive
   class(res) <- c("cost_fun", class(res))
