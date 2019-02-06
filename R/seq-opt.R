@@ -67,7 +67,7 @@ seq_opt <- function(x,
 
 check_inputs <- function(cost_funs, weights, progress, norm_cost, exponentiate) {
   if (!is.list(cost_funs) ||
-      !all(purrr::map_lgl(cost_funs, function(y) is(y, "cost_fun"))))
+      !all(purrr::map_lgl(cost_funs, is.cost_fun)))
     stop("cost_funs must be a list of cost functions, ",
          "with each cost function created by cost_fun()")
   checkmate::qassert(weights, "N")

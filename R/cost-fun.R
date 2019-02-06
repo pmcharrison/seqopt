@@ -29,20 +29,26 @@
 #' @return An object of class \code{cost_fun}, to be combined into a list
 #' and passed to \code{seq_opt()}.
 #' @export
-cost_fun <- function(context_sensitive,
-                     f,
+cost_fun <- function(f,
+                     context_sensitive,
                      memoise = FALSE,
                      vectorised = FALSE) {
   check_cost_fun(context_sensitive, f, memoise, vectorised)
+  res <- if (context_sensitive && !vectorised)
+    function(contexts, b) purrr::map_dbl(contexts, ~ f(., b)) else
+      f
+  if (memoise) res <- memoise::memoise(res)
+  attr(res, "context_sensitive") <- context_sensitive
+  class(res) <- c("cost_fun", class(res))
+  res
+}
 
-  fun <- if (context_sensitive && !vectorised) {
-    function(contexts, b) vapply(contexts, function(context) f(context, b), numeric(1))
-  } else f
-  if (memoise) fun <- memoise::memoise(fun)
-  x <- list(context_sensitive = context_sensitive,
-            fun = fun)
-  class(x) <- "cost_fun"
-  x
+#' @export
+is_context_sensitive <- function(x) {
+  context_sensitive <- attr(x, "context_sensitive")
+  if (!checkmate::qtest(context_sensitive, "B1"))
+    stop("invalid 'context_sensitive' attribute")
+  context_sensitive
 }
 
 check_cost_fun <- function(context_sensitive, f, memoise, vectorised) {
@@ -71,8 +77,10 @@ is.cost_fun <- function(x) {
 }
 
 print.cost_fun <- function(x, ...) {
-  cat("Cost function: \n")
-  cat(sprintf("- context-%s\n",
-              if (x$context) "sensitive" else "free"))
-  print(x$f)
+  cat(sprintf("Context-%s ",
+              if (is_context_sensitive(x)) "sensitive" else "free"))
+  cat("cost function: \n")
+
+  attributes(x) <- NULL
+  print(x)
 }
