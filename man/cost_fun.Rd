@@ -4,20 +4,20 @@
 \alias{cost_fun}
 \title{Cost function}
 \usage{
-cost_fun(context_sensitive, f, memoise = FALSE, vectorised = FALSE)
+cost_fun(f, context_sensitive, memoise = FALSE, vectorised = FALSE)
 }
 \arguments{
-\item{context_sensitive}{Scalar Boolean;
-whether the function is affected by the identity of the previous state.
-If \code{FALSE}, this means the cost function only depends on the identity
-of the new state.}
-
 \item{f}{Function defining the cost function.
 If \code{context_sensitive = TRUE}, this function should take two arguments,
 the first corresponding to the previous state,
 and the second corresponding to the new state.
 If \code{context_sensitive = FALSE}, this function should take one argument
 corresponding to the new state.}
+
+\item{context_sensitive}{Scalar Boolean;
+whether the function is affected by the identity of the previous state.
+If \code{FALSE}, this means the cost function only depends on the identity
+of the new state.}
 
 \item{memoise}{Scalar Boolean;
 whether or not the cost function should be memoised.

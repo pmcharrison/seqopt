@@ -2,6 +2,7 @@
 
 export(cost_fun)
 export(is.cost_fun)
+export(is_context_sensitive)
 export(seq_opt)
 importFrom(methods,"is")
 importFrom(zeallot,"%<-%")
