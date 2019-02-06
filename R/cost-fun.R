@@ -33,10 +33,8 @@ cost_fun <- function(context_sensitive,
                      f,
                      memoise = FALSE,
                      vectorised = FALSE) {
-  checkmate::qassert(context_sensitive, "B1")
-  checkmate::qassert(memoise, "B1")
-  checkmate::qassert(vectorised, "B1")
-  stopifnot(is.function(f))
+  check_cost_fun(context_sensitive, f, memoise, vectorised)
+
   fun <- if (context_sensitive && !vectorised) {
     function(contexts, b) vapply(contexts, function(context) f(context, b), numeric(1))
   } else f
@@ -45,6 +43,21 @@ cost_fun <- function(context_sensitive,
             fun = fun)
   class(x) <- "cost_fun"
   x
+}
+
+check_cost_fun <- function(context_sensitive, f, memoise, vectorised) {
+  checkmate::qassert(context_sensitive, "B1")
+  checkmate::qassert(memoise, "B1")
+  checkmate::qassert(vectorised, "B1")
+  stopifnot(is.function(f))
+  if (context_sensitive) {
+    if (length(formals(f)) < 2L)
+      stop("context-sensitive functions must take at least two arguments")
+  } else {
+    if (length(formals(f)) < 1L)
+      stop("context-insensitive functions must take at least one argument")
+  }
+  invisible(TRUE)
 }
 
 #' Check for type 'cost function'

@@ -9,7 +9,7 @@ test_that("Prefer small numbers", {
 
 test_that("Prefer large numbers", {
   x <- lapply(1:10, function(x) 1:10)
-  cost_funs <- list(cost_fun(FALSE, `-`))
+  cost_funs <- list(cost_fun(FALSE, function(x) - x))
   res <- seq_opt(x, cost_funs)
   expect_equal(unlist(res), rep(10, times = 10))
 })
