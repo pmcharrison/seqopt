@@ -53,6 +53,16 @@ cost_fun <- function(context_sensitive,
   x
 }
 
+#' Check for type 'cost function'
+#'
+#' Checks whether an object is a cost function.
+#' @param x Object to check.
+#' @return Logical scalar.
+#' @export
+is.cost_fun <- function(x) {
+  is(x, "cost_fun")
+}
+
 print.cost_fun <- function(x, ...) {
   cat("Cost function: \n")
   cat(sprintf("- context-%s\n",
