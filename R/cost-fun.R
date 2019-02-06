@@ -31,16 +31,20 @@
 #' @export
 cost_fun <- function(f,
                      context_sensitive,
-                     memoise = FALSE,
                      vectorised = FALSE) {
-  check_cost_fun(context_sensitive, f, memoise, vectorised)
-  res <- if (context_sensitive && !vectorised)
-    function(contexts, b) purrr::map_dbl(contexts, ~ f(., b)) else
-      function(x) as.numeric(f(x))
-  if (memoise) res <- memoise::memoise(res)
-  attr(res, "context_sensitive") <- context_sensitive
-  class(res) <- c("cost_fun", class(res))
-  res
+  check_cost_fun(context_sensitive, f, vectorised)
+  attr(f, "context_sensitive") <- context_sensitive
+  attr(f, "vectorised") <- vectorised
+  class(f) <- c("cost_fun", class(f))
+  f
+}
+
+#' @export
+is_vectorised <- function(x) {
+  vectorised <- attr(x, "vectorised")
+  if (!checkmate::qtest(vectorised, "B1"))
+    stop("invalid 'vectorised' attribute")
+  vectorised
 }
 
 #' @export
@@ -51,9 +55,8 @@ is_context_sensitive <- function(x) {
   context_sensitive
 }
 
-check_cost_fun <- function(context_sensitive, f, memoise, vectorised) {
+check_cost_fun <- function(context_sensitive, f, vectorised) {
   checkmate::qassert(context_sensitive, "B1")
-  checkmate::qassert(memoise, "B1")
   checkmate::qassert(vectorised, "B1")
   stopifnot(is.function(f))
   if (context_sensitive) {

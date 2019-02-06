@@ -12,9 +12,14 @@ cost_by_prev_state <- function(prev_state_values,
   for (i in seq_along(cost_funs)) { # iterate over columns / functions
     f <- cost_funs[[i]]
     res <- if (is_context_sensitive(f)) {
-      f(prev_state_values, new_state_value)
+      if (is_vectorised(f)) {
+        as.numeric(f(prev_state_values, new_state_value))
+      } else {
+        purrr::map_dbl(prev_state_values, ~ f(., new_state_value))
+      }
     } else {
-      rep(f(new_state_value), times = n)
+      rep(as.numeric(f(new_state_value)),
+          times = n)
     }
     if (length(res) != n) stop("cost function returned wrong number of outputs")
     if (anyNA(res)) stop("NA values not permitted in cost function output")
@@ -30,7 +35,7 @@ get_initial_costs <- function(x, cost_funs, weights, norm_cost, exponentiate) {
   alphabet <- x[[1L]]
   res <- purrr::map_dbl(alphabet, function(val) {
     cost_by_fun <- purrr::map2_dbl(cost_funs, weights, function(f, weight) {
-      function_output <- if (is_context_sensitive(f)) 0 else f(val)
+      function_output <- if (is_context_sensitive(f)) 0 else as.numeric(f(val))
       function_output * weight
     })
     sum(cost_by_fun)
