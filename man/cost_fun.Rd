@@ -4,8 +4,7 @@
 \alias{cost_fun}
 \title{Cost function}
 \usage{
-cost_fun(context_sensitive, f, memoise = FALSE, vectorised = FALSE,
-  weight = 1)
+cost_fun(context_sensitive, f, memoise = FALSE, vectorised = FALSE)
 }
 \arguments{
 \item{context_sensitive}{Scalar Boolean;
@@ -32,10 +31,6 @@ list of potential previous states,
 with its second input being the new state, as before.
 It should then return a numeric vector corresponding to the
 transition cost associated with each potential previous state.}
-
-\item{weight}{Scalar numeric;
-defines the multiplicative weight parameter for the cost function
-when \code{seq_opt()} combines cost functions.}
 }
 \value{
 An object of class \code{cost_fun}, to be combined into a list

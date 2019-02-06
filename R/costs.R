@@ -5,6 +5,7 @@
 cost_by_prev_state <- function(prev_state_values,
                                new_state_value,
                                cost_funs,
+                               weights,
                                exponentiate) {
   n <- length(prev_state_values)
   x <- matrix(nrow = n, ncol = length(cost_funs)) # rows = previous states, cols = functions
@@ -17,7 +18,7 @@ cost_by_prev_state <- function(prev_state_values,
     }
     if (length(res) != n) stop("cost function returned wrong number of outputs")
     if (!is.numeric(res)) stop("cost function did not return numeric outputs")
-    res <- res * f$weight
+    res <- res * weights[i]
     x[, i] <- res
   }
   res <- rowSums(x) # linear predictor
@@ -25,12 +26,12 @@ cost_by_prev_state <- function(prev_state_values,
   res
 }
 
-get_initial_costs <- function(x, cost_funs, norm_cost, exponentiate) {
+get_initial_costs <- function(x, cost_funs, weights, norm_cost, exponentiate) {
   alphabet <- x[[1L]]
   res <- purrr::map_dbl(alphabet, function(val) {
-    cost_by_fun <- purrr::map_dbl(cost_funs, function(f) {
+    cost_by_fun <- purrr::map2_dbl(cost_funs, weights, function(f, weight) {
       function_output <- if (f$context_sensitive) 0 else f$fun(val)
-      f$weight * function_output
+      function_output * weight
     })
     sum(cost_by_fun)
   })

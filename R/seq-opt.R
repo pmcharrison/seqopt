@@ -36,11 +36,14 @@
 #' @export
 seq_opt <- function(x,
                     cost_funs,
+                    weights = 1,
                     progress = FALSE,
                     norm_cost = FALSE,
                     exponentiate = FALSE,
                     minimise = TRUE) {
-  check_inputs(cost_funs, progress, norm_cost, exponentiate)
+  check_inputs(cost_funs, weights, progress, norm_cost, exponentiate)
+  if (length(weights) == 1L)
+    weights <- rep(weights, length.out = length(cost_funs))
 
   N <- length(x)
   if (N == 0) return(NULL)
@@ -48,13 +51,13 @@ seq_opt <- function(x,
   best_prev_states <- init_best_prev_states(N, x)
 
   if (progress) pb <- utils::txtProgressBar(max = N, style = 3)
-  costs <- first_iter(costs, x, cost_funs, norm_cost, exponentiate)
+  costs <- first_iter(costs, x, cost_funs, weights, norm_cost, exponentiate)
   if (progress) utils::setTxtProgressBar(pb, 1)
 
   for (i in seq(from = 2L, length.out = N - 1L)) {
-    c(costs, best_prev_states) %<-% rest_iter(i, costs, x, cost_funs, norm_cost,
-                                              best_prev_states, exponentiate,
-                                              minimise)
+    c(costs, best_prev_states) %<-% rest_iter(i, costs, x, cost_funs, weights,
+                                              norm_cost, best_prev_states,
+                                              exponentiate, minimise)
     if (progress) utils::setTxtProgressBar(pb, i)
   }
 
@@ -62,12 +65,15 @@ seq_opt <- function(x,
   find_path(x, costs, best_prev_states, N, minimise)
 }
 
-check_inputs <- function(cost_funs, progress, norm_cost, exponentiate) {
+check_inputs <- function(cost_funs, weights, progress, norm_cost, exponentiate) {
   if (!is.list(cost_funs) ||
       !all(purrr::map_lgl(cost_funs, function(y) is(y, "cost_fun"))))
     stop("cost_funs must be a list of cost functions, ",
          "with each cost function created by cost_fun()")
+  checkmate::qassert(weights, "N1")
   checkmate::qassert(progress, "B1")
   checkmate::qassert(norm_cost, "B1")
   checkmate::qassert(exponentiate, "B1")
+  if (!(length(weights) == 1L || length(weights) == length(cost_funs)))
+    stop("weights must have length of either 1 or length(cost_funs)")
 }

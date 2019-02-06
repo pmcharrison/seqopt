@@ -4,8 +4,8 @@
 \alias{seq_opt}
 \title{Find optimal sequence}
 \usage{
-seq_opt(x, cost_funs, progress = FALSE, norm_cost = FALSE,
-  exponentiate = FALSE, minimise = TRUE)
+seq_opt(x, cost_funs, weights = 1, progress = FALSE,
+  norm_cost = FALSE, exponentiate = FALSE, minimise = TRUE)
 }
 \arguments{
 \item{x}{A nested list describing the possible states at the possible time points.

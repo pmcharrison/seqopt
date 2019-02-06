@@ -26,29 +26,23 @@
 #' with its second input being the new state, as before.
 #' It should then return a numeric vector corresponding to the
 #' transition cost associated with each potential previous state.
-#' @param weight Scalar numeric;
-#' defines the multiplicative weight parameter for the cost function
-#' when \code{seq_opt()} combines cost functions.
 #' @return An object of class \code{cost_fun}, to be combined into a list
 #' and passed to \code{seq_opt()}.
 #' @export
 cost_fun <- function(context_sensitive,
                      f,
                      memoise = FALSE,
-                     vectorised = FALSE,
-                     weight = 1) {
+                     vectorised = FALSE) {
   checkmate::qassert(context_sensitive, "B1")
   checkmate::qassert(memoise, "B1")
   checkmate::qassert(vectorised, "B1")
-  checkmate::qassert(weight, "N1")
   stopifnot(is.function(f))
   fun <- if (context_sensitive && !vectorised) {
     function(contexts, b) vapply(contexts, function(context) f(context, b), numeric(1))
   } else f
   if (memoise) fun <- memoise::memoise(fun)
   x <- list(context_sensitive = context_sensitive,
-            fun = fun,
-            weight = weight)
+            fun = fun)
   class(x) <- "cost_fun"
   x
 }
@@ -67,6 +61,5 @@ print.cost_fun <- function(x, ...) {
   cat("Cost function: \n")
   cat(sprintf("- context-%s\n",
               if (x$context) "sensitive" else "free"))
-  cat(sprintf("- weight = %s\n", x$weight))
   print(x$f)
 }

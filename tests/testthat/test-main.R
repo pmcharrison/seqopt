@@ -37,11 +37,10 @@ test_that("Changing available states", {
 test_that("Weight sensitivity", {
   x <- lapply(1:10, function(x) 1:10)
   cost_funs <- list(cost_fun(FALSE, function(x) x))
-  res <- seq_opt(x, cost_funs)
-  expect_equal(unlist(res), rep(1, times = 10)) # prefers small numbers
-  cost_funs <- list(cost_fun(FALSE, function(x) x, weight = -1))
-  res <- seq_opt(x, cost_funs)
-  expect_equal(unlist(res), rep(10, times = 10)) # prefers large numbers
+  seq_opt(x, cost_funs) %>%
+    unlist() %>% expect_equal(rep(1, times = 10))
+  seq_opt(x, cost_funs, weights = - 1) %>%
+    unlist() %>% expect_equal(rep(10, times = 10))
 })
 
 test_that("Minimise versus maximise", {

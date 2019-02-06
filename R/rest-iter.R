@@ -1,4 +1,4 @@
-rest_iter <- function(i, costs, x, cost_funs, norm_cost,
+rest_iter <- function(i, costs, x, cost_funs, weights, norm_cost,
                       best_prev_states, exponentiate, minimise) {
   # i = time point
   best_prev_states[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
@@ -14,6 +14,7 @@ rest_iter <- function(i, costs, x, cost_funs, norm_cost,
     cost_matrix[j, ] <- cost_by_prev_state(prev_state_values = x[[i - 1L]],
                                            new_state_value = x[[i]][[j]],
                                            cost_funs = cost_funs,
+                                           weights = weights,
                                            exponentiate = exponentiate)
   }
 
