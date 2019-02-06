@@ -2,14 +2,21 @@
 # as prev_state_values,
 # corresponding to the cost associated with moving from
 # that previous state to the new state.
+#' @export
 cost_by_prev_state <- function(prev_state_values,
                                new_state_value,
                                cost_funs,
                                weights,
-                               exponentiate) {
+                               exponentiate,
+                               profile = FALSE) {
   n <- length(prev_state_values)
   x <- matrix(nrow = n, ncol = length(cost_funs)) # rows = previous states, cols = functions
+  if (profile) {
+    time <- rep(as.numeric(NA), times =  length(cost_funs))
+    names(time) <- names(cost_funs)
+  }
   for (i in seq_along(cost_funs)) { # iterate over columns / functions
+    if (profile) start_time <- proc.time()
     f <- cost_funs[[i]]
     res <- if (is_context_sensitive(f)) {
       if (is_vectorised(f)) {
@@ -25,9 +32,11 @@ cost_by_prev_state <- function(prev_state_values,
     if (anyNA(res)) stop("NA values not permitted in cost function output")
     res <- res * weights[i]
     x[, i] <- res
+    if (profile) time[i] <- as.numeric(proc.time() - start_time)[3]
   }
   res <- rowSums(x) # linear predictor
   if (exponentiate) res <- exp(res) # exp(linear predictor)
+  if (profile) attr(res, "time") <- time
   res
 }
 

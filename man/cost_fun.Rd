@@ -4,7 +4,7 @@
 \alias{cost_fun}
 \title{Cost function}
 \usage{
-cost_fun(f, context_sensitive, memoise = FALSE, vectorised = FALSE)
+cost_fun(f, context_sensitive, vectorised = FALSE)
 }
 \arguments{
 \item{f}{Function defining the cost function.
@@ -19,11 +19,6 @@ whether the function is affected by the identity of the previous state.
 If \code{FALSE}, this means the cost function only depends on the identity
 of the new state.}
 
-\item{memoise}{Scalar Boolean;
-whether or not the cost function should be memoised.
-Defaults to \code{FALSE}, but enable this when the cost function
-is time-consuming to compute and repeated transitions are anticipated.}
-
 \item{vectorised}{Scalar Boolean;
 whether or not \code{f} is vectorised.
 If \code{f} is vectorised, it should take as its first input a
@@ -31,6 +26,11 @@ list of potential previous states,
 with its second input being the new state, as before.
 It should then return a numeric vector corresponding to the
 transition cost associated with each potential previous state.}
+
+\item{memoise}{Scalar Boolean;
+whether or not the cost function should be memoised.
+Defaults to \code{FALSE}, but enable this when the cost function
+is time-consuming to compute and repeated transitions are anticipated.}
 }
 \value{
 An object of class \code{cost_fun}, to be combined into a list
