@@ -70,7 +70,7 @@ check_inputs <- function(cost_funs, weights, progress, norm_cost, exponentiate) 
       !all(purrr::map_lgl(cost_funs, function(y) is(y, "cost_fun"))))
     stop("cost_funs must be a list of cost functions, ",
          "with each cost function created by cost_fun()")
-  checkmate::qassert(weights, "N1")
+  checkmate::qassert(weights, "N")
   checkmate::qassert(progress, "B1")
   checkmate::qassert(norm_cost, "B1")
   checkmate::qassert(exponentiate, "B1")
