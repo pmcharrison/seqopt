@@ -1,7 +1,8 @@
 #' Find optimal sequence
 #'
 #' Given a list of timepoints and corresponding lists of possible states,
-#' efficiently finds an optimal state sequence that minimises an arbitrary transition cost function.
+#' efficiently finds an optimal state sequence that minimises (or maximises)
+#'  an arbitrary transition cost function.
 #' The implementation uses dynamic programming to achieve complexity
 #' linear in the sequence length
 #' and quadratic in the number of possible states.
@@ -20,77 +21,59 @@
 #' (i.e. the cost associated with moving to a state is independent of
 #' the previous state).
 #' @param progress Whether or not to show a progress bar.
+#' @param norm_cost (Logical scalar)
+#' Whether or not the cost at each transition
+#' (conditioned on the previous state)
+#' should be normalised to sum to 1
+#' for the set of possible continuations.
+#' This yields a probabilistic interpretation of the cost function.
+#' @param exponentiate (Logical scalar)
+#' Whether the combined cost function should be exponentiated.
+#' @param minimise (Logical scalar)
+#' Whether the cost function should be minimised or maximised.
 #' @return A list where element \code{i} corresponds to the optimal
 #' state at timepoint \code{i}.
 #' @export
-seq_opt <- function(x, cost_funs, progress = FALSE) {
-  if (!is.list(cost_funs) ||
-      !all(purrr::map_lgl(cost_funs, function(y) is(y, "cost_fun"))))
-    stop("cost_funs must be a list of cost functions, ",
-         "with each cost function created by cost_fun()")
-  checkmate::qassert(progress, "B1")
+seq_opt <- function(x,
+                    cost_funs,
+                    weights = 1,
+                    progress = FALSE,
+                    norm_cost = FALSE,
+                    exponentiate = FALSE,
+                    minimise = TRUE) {
+  check_inputs(cost_funs, weights, progress, norm_cost, exponentiate)
+  if (length(weights) == 1L)
+    weights <- rep(weights, length.out = length(cost_funs))
 
   N <- length(x)
-
-  # Element i of <costs> is a numeric vector,
-  # the jth element of which corresponds to the
-  # minimal (i.e. best) cost of the journey to x[[i]][[j]].
-  costs <- vector(mode = "list", length = N)
-
-  # Element i of <best_prev_states> is a numeric vector,
-  # the jth element of which corresponds to the
-  # predecessor to x[[i]][[j]] (i.e. a member of x[[i - 1]])
-  # that achieves minimal cost.
-  best_prev_states <- vector(mode = "list", length = N)
-
   if (N == 0) return(NULL)
+  costs <- init_costs(N)
+  best_prev_states <- init_best_prev_states(N, x)
 
   if (progress) pb <- utils::txtProgressBar(max = N, style = 3)
-
-  costs[[1L]] <- get_initial_costs(x = x, cost_funs = cost_funs)
-
-  best_prev_states[[1L]] <- rep(as.integer(NA), times = length(x[[1L]]))
-
+  costs <- first_iter(costs, x, cost_funs, weights, norm_cost, exponentiate)
   if (progress) utils::setTxtProgressBar(pb, 1)
 
   for (i in seq(from = 2L, length.out = N - 1L)) {
-    # i = time point
-    best_prev_states[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
-    costs[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
-    for (j in seq_along(x[[i]])) {
-      # j = potential state at time point i
-      tmp <- best_prev_state(prev_state_values = x[[i - 1L]],
-                             prev_state_costs = costs[[i - 1L]],
-                             new_state_value = x[[i]][[j]],
-                             cost_funs = cost_funs)
-      best_prev_states[[i]][[j]] <- tmp[[1]]
-      costs[[i]][[j]] <- tmp[[2]]
-    }
+    c(costs, best_prev_states) %<-% rest_iter(i, costs, x, cost_funs, weights,
+                                              norm_cost, best_prev_states,
+                                              exponentiate, minimise)
     if (progress) utils::setTxtProgressBar(pb, i)
   }
+
   if (progress) close(pb)
-
-  chosen_path <- rep(as.integer(NA), times = N)
-  chosen_path[N] <- which.min(costs[[N]])
-  chosen_cost <- costs[[N]][chosen_path[N]]
-
-  for (i in seq(from = N - 1L, by = - 1L, length.out = N - 1L)) {
-    chosen_path[i] <- best_prev_states[[i + 1L]][chosen_path[i + 1L]]
-  }
-
-  res <- purrr::map2(x, chosen_path, function(a, b) a[[b]])
-  attr(res, "cost") <- chosen_cost
-  res
+  find_path(x, costs, best_prev_states, N, minimise)
 }
 
-best_prev_state <- function(prev_state_values,
-                            prev_state_costs,
-                            new_state_value,
-                            cost_funs) {
-  costs <- prev_state_costs +
-    cost_by_prev_state(prev_state_values = prev_state_values,
-                       new_state_value = new_state_value,
-                       cost_funs = cost_funs)
-  i <- which.min(costs)
-  list(best_prev_state = i, cost = costs[i])
+check_inputs <- function(cost_funs, weights, progress, norm_cost, exponentiate) {
+  if (!is.list(cost_funs) ||
+      !all(purrr::map_lgl(cost_funs, is.cost_fun)))
+    stop("cost_funs must be a list of cost functions, ",
+         "with each cost function created by cost_fun()")
+  checkmate::qassert(weights, "N")
+  checkmate::qassert(progress, "B1")
+  checkmate::qassert(norm_cost, "B1")
+  checkmate::qassert(exponentiate, "B1")
+  if (!(length(weights) == 1L || length(weights) == length(cost_funs)))
+    stop("weights must have length of either 1 or length(cost_funs)")
 }

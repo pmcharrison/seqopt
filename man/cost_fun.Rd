@@ -4,15 +4,10 @@
 \alias{cost_fun}
 \title{Cost function}
 \usage{
-cost_fun(context_sensitive, f, memoise = FALSE, vectorised = FALSE,
-  weight = 1)
+cost_fun(f, context_sensitive, vectorised = FALSE, symmetric = NA,
+  has_reverse = FALSE)
 }
 \arguments{
-\item{context_sensitive}{Scalar Boolean;
-whether the function is affected by the identity of the previous state.
-If \code{FALSE}, this means the cost function only depends on the identity
-of the new state.}
-
 \item{f}{Function defining the cost function.
 If \code{context_sensitive = TRUE}, this function should take two arguments,
 the first corresponding to the previous state,
@@ -20,10 +15,10 @@ and the second corresponding to the new state.
 If \code{context_sensitive = FALSE}, this function should take one argument
 corresponding to the new state.}
 
-\item{memoise}{Scalar Boolean;
-whether or not the cost function should be memoised.
-Defaults to \code{FALSE}, but enable this when the cost function
-is time-consuming to compute and repeated transitions are anticipated.}
+\item{context_sensitive}{Scalar Boolean;
+whether the function is affected by the identity of the previous state.
+If \code{FALSE}, this means the cost function only depends on the identity
+of the new state.}
 
 \item{vectorised}{Scalar Boolean;
 whether or not \code{f} is vectorised.
@@ -33,9 +28,10 @@ with its second input being the new state, as before.
 It should then return a numeric vector corresponding to the
 transition cost associated with each potential previous state.}
 
-\item{weight}{Scalar numeric;
-defines the multiplicative weight parameter for the cost function
-when \code{seq_opt()} combines cost functions.}
+\item{memoise}{Scalar Boolean;
+whether or not the cost function should be memoised.
+Defaults to \code{FALSE}, but enable this when the cost function
+is time-consuming to compute and repeated transitions are anticipated.}
 }
 \value{
 An object of class \code{cost_fun}, to be combined into a list

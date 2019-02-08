@@ -1,29 +1,55 @@
-cost_by_prev_state <- function(prev_state_values, new_state_value, cost_funs) {
+# Returns a numeric vector of costs of the same length
+# as prev_state_values,
+# corresponding to the cost associated with moving from
+# that previous state to the new state.
+#' @export
+cost_by_prev_state <- function(prev_state_values,
+                               new_state_value,
+                               cost_funs,
+                               weights,
+                               exponentiate,
+                               profile = FALSE) {
   n <- length(prev_state_values)
-  x <- matrix(nrow = n, ncol = length(cost_funs))
-  for (i in seq_along(cost_funs)) {
+  x <- matrix(nrow = n, ncol = length(cost_funs)) # rows = previous states, cols = functions
+  if (profile) {
+    time <- rep(as.numeric(NA), times =  length(cost_funs))
+    names(time) <- names(cost_funs)
+  }
+  for (i in seq_along(cost_funs)) { # iterate over columns / functions
+    if (profile) start_time <- proc.time()
     f <- cost_funs[[i]]
-    res <- if (f$context_sensitive) {
-      f$fun(prev_state_values, new_state_value)
+    res <- if (is_context_sensitive(f)) {
+      if (is_vectorised(f)) {
+        as.numeric(f(prev_state_values, new_state_value))
+      } else {
+        purrr::map_dbl(prev_state_values, ~ f(., new_state_value))
+      }
     } else {
-      rep(f$fun(new_state_value), times = n)
+      rep(as.numeric(f(new_state_value)),
+          times = n)
     }
     if (length(res) != n) stop("cost function returned wrong number of outputs")
-    if (!is.numeric(res)) stop("cost function did not return numeric outputs")
+    if (anyNA(res)) stop("NA values not permitted in cost function output")
+    res <- res * weights[i]
     x[, i] <- res
+    if (profile) time[i] <- as.numeric(proc.time() - start_time)[3]
   }
-  rowSums(x)
+  res <- rowSums(x) # linear predictor
+  if (exponentiate) res <- exp(res) # exp(linear predictor)
+  if (profile) attr(res, "time") <- time
+  res
 }
 
-get_initial_costs <- function(x, cost_funs) {
-  purrr::map_dbl(x[[1L]], function(val) {
-    sum(
-      purrr::map_dbl(cost_funs, function(f) {
-        res <- if (f$context_sensitive) 0 else f$fun(val)
-        if (length(res) != 1L) stop("cost function returned wrong number of outputs")
-        res
-      }))
+get_initial_costs <- function(x, cost_funs, weights, norm_cost, exponentiate) {
+  alphabet <- x[[1L]]
+  res <- purrr::map_dbl(alphabet, function(val) {
+    cost_by_fun <- purrr::map2_dbl(cost_funs, weights, function(f, weight) {
+      function_output <- if (is_context_sensitive(f)) 0 else as.numeric(f(val))
+      function_output * weight
+    })
+    sum(cost_by_fun)
   })
+  if (exponentiate) res <- exp(res)
+  if (norm_cost) res <- normalise(res)
+  res
 }
-
-
