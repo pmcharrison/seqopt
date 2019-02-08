@@ -31,10 +31,16 @@
 #' @export
 cost_fun <- function(f,
                      context_sensitive,
-                     vectorised = FALSE) {
-  check_cost_fun(context_sensitive, f, vectorised)
+                     vectorised = FALSE,
+                     symmetric = NA,
+                     has_reverse = FALSE) {
+  check_cost_fun(context_sensitive, f, vectorised, symmetric, has_reverse)
+  if (vectorised && is.na(symmetric))
+    stop("vectorised cost functions cannot have symmetric = NA")
   attr(f, "context_sensitive") <- context_sensitive
   attr(f, "vectorised") <- vectorised
+  attr(f, "symmetric") <- symmetric
+  attr(f, "has_reverse") <- has_reverse
   class(f) <- c("cost_fun", class(f))
   f
 }
@@ -55,9 +61,28 @@ is_context_sensitive <- function(x) {
   context_sensitive
 }
 
-check_cost_fun <- function(context_sensitive, f, vectorised) {
+#' @export
+is_symmetric <- function(x) {
+  symmetric <- attr(x, "symmetric")
+  if (!checkmate::qtest(symmetric, "b1"))
+    stop("invalid 'symmetric' attribute")
+  symmetric
+}
+
+#' @export
+has_reverse <- function(x) {
+  has_reverse <- attr(x, "has_reverse")
+  if (!checkmate::qtest(has_reverse, "B1"))
+    stop("invalid 'has_reverse' attribute")
+  has_reverse
+}
+
+check_cost_fun <- function(context_sensitive, f, vectorised,
+                           symmetric, has_reverse) {
   checkmate::qassert(context_sensitive, "B1")
   checkmate::qassert(vectorised, "B1")
+  checkmate::qassert(symmetric, "b1")
+  checkmate::qassert(has_reverse, "B1")
   stopifnot(is.function(f))
   if (context_sensitive) {
     if (length(formals(f)) < 2L)

@@ -4,7 +4,8 @@
 \alias{cost_fun}
 \title{Cost function}
 \usage{
-cost_fun(f, context_sensitive, vectorised = FALSE)
+cost_fun(f, context_sensitive, vectorised = FALSE, symmetric = NA,
+  has_reverse = FALSE)
 }
 \arguments{
 \item{f}{Function defining the cost function.
