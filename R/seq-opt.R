@@ -20,7 +20,7 @@
 #' when some of the cost functions are context-independent
 #' (i.e. the cost associated with moving to a state is independent of
 #' the previous state).
-#' @param progress Whether or not to show a progress bar.
+#' @param verbose
 #' @param norm_cost (Logical scalar)
 #' Whether or not the cost at each transition
 #' (conditioned on the previous state)
@@ -37,41 +37,43 @@
 seq_opt <- function(x,
                     cost_funs,
                     weights = 1,
-                    progress = FALSE,
+                    verbose = FALSE,
                     norm_cost = FALSE,
                     exponentiate = FALSE,
                     minimise = TRUE) {
-  check_inputs(cost_funs, weights, progress, norm_cost, exponentiate)
+  check_inputs(cost_funs, weights, verbose, norm_cost, exponentiate)
   if (length(weights) == 1L)
     weights <- rep(weights, length.out = length(cost_funs))
+
+  if (verbose) summarise_problem(x)
 
   N <- length(x)
   if (N == 0) return(NULL)
   costs <- init_costs(N)
   best_prev_states <- init_best_prev_states(N, x)
 
-  if (progress) pb <- utils::txtProgressBar(max = N, style = 3)
+  if (verbose) pb <- utils::txtProgressBar(max = N, style = 3)
   costs <- first_iter(costs, x, cost_funs, weights, norm_cost, exponentiate)
-  if (progress) utils::setTxtProgressBar(pb, 1)
+  if (verbose) utils::setTxtProgressBar(pb, 1)
 
   for (i in seq(from = 2L, length.out = N - 1L)) {
     c(costs, best_prev_states) %<-% rest_iter(i, costs, x, cost_funs, weights,
                                               norm_cost, best_prev_states,
                                               exponentiate, minimise)
-    if (progress) utils::setTxtProgressBar(pb, i)
+    if (verbose) utils::setTxtProgressBar(pb, i)
   }
 
-  if (progress) close(pb)
+  if (verbose) close(pb)
   find_path(x, costs, best_prev_states, N, minimise)
 }
 
-check_inputs <- function(cost_funs, weights, progress, norm_cost, exponentiate) {
+check_inputs <- function(cost_funs, weights, verbose, norm_cost, exponentiate) {
   if (!is.list(cost_funs) ||
       !all(purrr::map_lgl(cost_funs, is.cost_fun)))
     stop("cost_funs must be a list of cost functions, ",
          "with each cost function created by cost_fun()")
   checkmate::qassert(weights, "N")
-  checkmate::qassert(progress, "B1")
+  checkmate::qassert(verbose, "B1")
   checkmate::qassert(norm_cost, "B1")
   checkmate::qassert(exponentiate, "B1")
   if (!(length(weights) == 1L || length(weights) == length(cost_funs)))

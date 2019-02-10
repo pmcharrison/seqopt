@@ -4,7 +4,7 @@
 \alias{seq_opt}
 \title{Find optimal sequence}
 \usage{
-seq_opt(x, cost_funs, weights = 1, progress = FALSE,
+seq_opt(x, cost_funs, weights = 1, verbose = FALSE,
   norm_cost = FALSE, exponentiate = FALSE, minimise = TRUE)
 }
 \arguments{
@@ -23,8 +23,6 @@ Decomposition of cost functions in this way has efficiency benefits
 when some of the cost functions are context-independent
 (i.e. the cost associated with moving to a state is independent of
 the previous state).}
-
-\item{progress}{Whether or not to show a progress bar.}
 
 \item{norm_cost}{(Logical scalar)
 Whether or not the cost at each transition
