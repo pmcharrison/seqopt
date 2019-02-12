@@ -1,5 +1,6 @@
-rest_iter <- function(i, costs, x, cost_funs, weights, norm_cost,
-                      best_prev_states, exponentiate, minimise) {
+rest_iter <- function(i, costs, x, cost_funs, weights, best_prev_states,
+                      exp_cost, norm_cost, log_cost,
+                      minimise) {
   # i = time point
   best_prev_states[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
   costs[[i]] <- rep(as.integer(NA), times = length(x[[i]]))
@@ -15,7 +16,7 @@ rest_iter <- function(i, costs, x, cost_funs, weights, norm_cost,
                                            new_state_value = x[[i]][[j]],
                                            cost_funs = cost_funs,
                                            weights = weights,
-                                           exponentiate = exponentiate)
+                                           exp_cost = exp_cost)
   }
 
   # If appropriate, normalise the cost matrix within each previous state
@@ -23,6 +24,11 @@ rest_iter <- function(i, costs, x, cost_funs, weights, norm_cost,
   if (norm_cost)
     for (k in seq_len(ncol(cost_matrix)))
       cost_matrix[, k] <- normalise(cost_matrix[, k])
+
+  # If appropriate, take the logarithm of the cost
+  # (esp. appropriate for probabilistic formulations)
+
+  if (log_cost) cost_matrix <- log(cost_matrix)
 
   # Add the accumulated costs for each previous state
   for (j in seq_len(nrow(cost_matrix)))

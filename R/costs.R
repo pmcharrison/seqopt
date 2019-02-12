@@ -7,7 +7,7 @@ cost_by_prev_state <- function(prev_state_values,
                                new_state_value,
                                cost_funs,
                                weights,
-                               exponentiate,
+                               exp_cost,
                                profile = FALSE) {
   n <- length(prev_state_values)
   x <- matrix(nrow = n, ncol = length(cost_funs)) # rows = previous states, cols = functions
@@ -35,12 +35,12 @@ cost_by_prev_state <- function(prev_state_values,
     if (profile) time[i] <- as.numeric(proc.time() - start_time)[3]
   }
   res <- rowSums(x) # linear predictor
-  if (exponentiate) res <- exp(res) # exp(linear predictor)
+  if (exp_cost) res <- exp(res) # exp(linear predictor)
   if (profile) attr(res, "time") <- time
   res
 }
 
-get_initial_costs <- function(x, cost_funs, weights, norm_cost, exponentiate) {
+get_initial_costs <- function(x, cost_funs, weights, exp_cost, norm_cost, log_cost) {
   alphabet <- x[[1L]]
   res <- purrr::map_dbl(alphabet, function(val) {
     cost_by_fun <- purrr::map2_dbl(cost_funs, weights, function(f, weight) {
@@ -49,7 +49,8 @@ get_initial_costs <- function(x, cost_funs, weights, norm_cost, exponentiate) {
     })
     sum(cost_by_fun)
   })
-  if (exponentiate) res <- exp(res)
+  if (exp_cost) res <- exp(res)
   if (norm_cost) res <- normalise(res)
+  if (log_cost) res <- log(res)
   res
 }

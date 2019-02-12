@@ -27,7 +27,7 @@
 #' should be normalised to sum to 1
 #' for the set of possible continuations.
 #' This yields a probabilistic interpretation of the cost function.
-#' @param exponentiate (Logical scalar)
+#' @param exp_cost (Logical scalar)
 #' Whether the combined cost function should be exponentiated.
 #' @param minimise (Logical scalar)
 #' Whether the cost function should be minimised or maximised.
@@ -38,10 +38,11 @@ seq_opt <- function(x,
                     cost_funs,
                     weights = 1,
                     verbose = FALSE,
+                    exp_cost = FALSE,
                     norm_cost = FALSE,
-                    exponentiate = FALSE,
+                    log_cost = FALSE,
                     minimise = TRUE) {
-  check_inputs(cost_funs, weights, verbose, norm_cost, exponentiate)
+  check_inputs(cost_funs, weights, verbose, exp_cost, norm_cost, log_cost)
   if (length(weights) == 1L)
     weights <- rep(weights, length.out = length(cost_funs))
 
@@ -53,13 +54,19 @@ seq_opt <- function(x,
   best_prev_states <- init_best_prev_states(N, x)
 
   if (verbose) pb <- utils::txtProgressBar(max = N, style = 3)
-  costs <- first_iter(costs, x, cost_funs, weights, norm_cost, exponentiate)
+  costs <- first_iter(costs, x, cost_funs, weights,
+                      exp_cost = exp_cost,
+                      norm_cost = norm_cost,
+                      log_cost = log_cost)
   if (verbose) utils::setTxtProgressBar(pb, 1)
 
   for (i in seq(from = 2L, length.out = N - 1L)) {
     c(costs, best_prev_states) %<-% rest_iter(i, costs, x, cost_funs, weights,
-                                              norm_cost, best_prev_states,
-                                              exponentiate, minimise)
+                                              best_prev_states,
+                                              exp_cost = exp_cost,
+                                              norm_cost = norm_cost,
+                                              log_cost = log_cost,
+                                              minimise = minimise)
     if (verbose) utils::setTxtProgressBar(pb, i)
   }
 
@@ -67,15 +74,16 @@ seq_opt <- function(x,
   find_path(x, costs, best_prev_states, N, minimise)
 }
 
-check_inputs <- function(cost_funs, weights, verbose, norm_cost, exponentiate) {
+check_inputs <- function(cost_funs, weights, verbose, exp_cost, norm_cost, log_cost) {
   if (!is.list(cost_funs) ||
       !all(purrr::map_lgl(cost_funs, is.cost_fun)))
     stop("cost_funs must be a list of cost functions, ",
          "with each cost function created by cost_fun()")
   checkmate::qassert(weights, "N")
   checkmate::qassert(verbose, "B1")
+  checkmate::qassert(exp_cost, "B1")
   checkmate::qassert(norm_cost, "B1")
-  checkmate::qassert(exponentiate, "B1")
+  checkmate::qassert(log_cost, "B1")
   if (!(length(weights) == 1L || length(weights) == length(cost_funs)))
     stop("weights must have length of either 1 or length(cost_funs)")
 }
