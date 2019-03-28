@@ -15,23 +15,30 @@ and the second corresponding to the new state.
 If \code{context_sensitive = FALSE}, this function should take one argument
 corresponding to the new state.}
 
-\item{context_sensitive}{Scalar Boolean;
-whether the function is affected by the identity of the previous state.
+\item{context_sensitive}{(Logical scalar)
+Whether the function is affected by the identity of the previous state.
 If \code{FALSE}, this means the cost function only depends on the identity
 of the new state.}
 
-\item{vectorised}{Scalar Boolean;
-whether or not \code{f} is vectorised.
+\item{vectorised}{(Logical scalar)
+Whether or not \code{f} is vectorised.
 If \code{f} is vectorised, it should take as its first input a
 list of potential previous states,
 with its second input being the new state, as before.
 It should then return a numeric vector corresponding to the
 transition cost associated with each potential previous state.}
 
-\item{memoise}{Scalar Boolean;
-whether or not the cost function should be memoised.
-Defaults to \code{FALSE}, but enable this when the cost function
-is time-consuming to compute and repeated transitions are anticipated.}
+\item{symmetric}{(Logical scalar)
+Whether \code{f} is symmetric, meaning that it returns
+the same result when transitioning forwards or backwards
+between two states.}
+
+\item{has_reverse}{(Logical scalar)
+If \code{reverse == TRUE}, the cost function \code{f} should have an
+optional argument \code{reverse} which defaults to \code{FALSE},
+which when set to \code{TRUE} instructs the cost function
+to compute the transition cost "backwards",
+as if proceeding from the continuation to the context.}
 }
 \value{
 An object of class \code{cost_fun}, to be combined into a list

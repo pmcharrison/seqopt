@@ -2,15 +2,17 @@
 #'
 #' Given a list of timepoints and corresponding lists of possible states,
 #' efficiently finds an optimal state sequence that minimises (or maximises)
-#'  an arbitrary transition cost function.
+#' an arbitrary transition cost function.
 #' The implementation uses dynamic programming to achieve complexity
 #' linear in the sequence length
 #' and quadratic in the number of possible states.
+#'
 #' @param x A nested list describing the possible states at the possible time points.
 #' Element \code{x[[i]]} should be a list describing the states available
 #' at timepoint \code{i}.
 #' Element \code{x[[i]][[j]]} should be the \code{j}th possible state
 #' at timepoint \code{i}.
+#'
 #' @param cost_funs A list of cost functions,
 #' with each cost function created by \code{cost_fun()}.
 #' When applied to a state transition,
@@ -20,16 +22,32 @@
 #' when some of the cost functions are context-independent
 #' (i.e. the cost associated with moving to a state is independent of
 #' the previous state).
+#'
+#' @param weights
+#' Numeric vector of either length 1 or the same length as \code{cost_funs},
+#' giving the weight for each cost function.
+#'
 #' @param verbose (Logical scalar)
 #' Whether to display progress messages.
+#'
+#' @param exp_cost (Logical scalar)
+#' Whether the combined cost function should be exponentiated.
+#'
 #' @param norm_cost (Logical scalar)
 #' Whether or not the cost at each transition
 #' (conditioned on the previous state)
 #' should be normalised to sum to 1
 #' for the set of possible continuations.
 #' This yields a probabilistic interpretation of the cost function.
-#' @param exp_cost (Logical scalar)
-#' Whether the combined cost function should be exponentiated.
+#' This takes place after the exponentiation controlled by the
+#' \code{exp_cost} argument.
+#'
+#' @param log_cost
+#' (Logical scalar)
+#' Whether or not the final costs should have their logarithm taken.
+#' This takes place after the normalisation controlled by
+#' the \code{norm_cost} argument.
+#'
 #' @param minimise (Logical scalar)
 #' Whether the cost function should be minimised or maximised.
 #' @return A list where element \code{i} corresponds to the optimal

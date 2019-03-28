@@ -24,6 +24,9 @@ when some of the cost functions are context-independent
 (i.e. the cost associated with moving to a state is independent of
 the previous state).}
 
+\item{weights}{Numeric vector of either length 1 or the same length as \code{cost_funs},
+giving the weight for each cost function.}
+
 \item{verbose}{(Logical scalar)
 Whether to display progress messages.}
 
@@ -35,7 +38,14 @@ Whether or not the cost at each transition
 (conditioned on the previous state)
 should be normalised to sum to 1
 for the set of possible continuations.
-This yields a probabilistic interpretation of the cost function.}
+This yields a probabilistic interpretation of the cost function.
+This takes place after the exponentiation controlled by the
+\code{exp_cost} argument.}
+
+\item{log_cost}{(Logical scalar)
+Whether or not the final costs should have their logarithm taken.
+This takes place after the normalisation controlled by
+the \code{norm_cost} argument.}
 
 \item{minimise}{(Logical scalar)
 Whether the cost function should be minimised or maximised.}
@@ -47,7 +57,7 @@ state at timepoint \code{i}.
 \description{
 Given a list of timepoints and corresponding lists of possible states,
 efficiently finds an optimal state sequence that minimises (or maximises)
- an arbitrary transition cost function.
+an arbitrary transition cost function.
 The implementation uses dynamic programming to achieve complexity
 linear in the sequence length
 and quadratic in the number of possible states.

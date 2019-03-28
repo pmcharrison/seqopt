@@ -1,7 +1,36 @@
-# Returns a numeric vector of costs of the same length
-# as prev_state_values,
-# corresponding to the cost associated with moving from
-# that previous state to the new state.
+#' Get cost by previous states
+#'
+#' Returns costs for moving to a given state from a vector of previous states.
+#'
+#' @param prev_state_values
+#' List of potential previous states, over which this function is vectorized.
+#'
+#' @param new_state_value
+#' State to move to.
+#'
+#' @param cost_funs
+#' Named list of cost functions, each created by \code{\link{cost_fun}}.
+#'
+#' @param weights
+#' Numeric vector of weights for these cost functions.
+#'
+#' @param exp_cost
+#' (Logical scalar)
+#' Whether the total costs should be exponentiated
+#' (after summing over the cost functions).
+#'
+#' @param profile
+#' (Logical scalar)
+#' Whether to profile the time taken to compute each cost function.
+#' If TRUE, profile information will be returned in the
+#' "time" attribute of the output object.
+#'
+#' @return
+#' A numeric vector of costs of the same length
+#' as \code{prev_state_values},
+#' corresponding to the cost associated with moving from
+#' that previous state to the new state.
+#'
 #' @export
 cost_by_prev_state <- function(prev_state_values,
                                new_state_value,

@@ -5,27 +5,43 @@
 #' If multiple cost functions are provided to \code{seq_opt()}
 #' then costs are computed for each cost function and summed
 #' to produce the final cost.
-#' @param context_sensitive Scalar Boolean;
-#' whether the function is affected by the identity of the previous state.
-#' If \code{FALSE}, this means the cost function only depends on the identity
-#' of the new state.
+#'
 #' @param f Function defining the cost function.
 #' If \code{context_sensitive = TRUE}, this function should take two arguments,
 #' the first corresponding to the previous state,
 #' and the second corresponding to the new state.
 #' If \code{context_sensitive = FALSE}, this function should take one argument
 #' corresponding to the new state.
-#' @param memoise Scalar Boolean;
-#' whether or not the cost function should be memoised.
-#' Defaults to \code{FALSE}, but enable this when the cost function
-#' is time-consuming to compute and repeated transitions are anticipated.
-#' @param vectorised Scalar Boolean;
-#' whether or not \code{f} is vectorised.
+#'
+#' @param context_sensitive
+#' (Logical scalar)
+#' Whether the function is affected by the identity of the previous state.
+#' If \code{FALSE}, this means the cost function only depends on the identity
+#' of the new state.
+#'
+#' @param vectorised
+#' (Logical scalar)
+#' Whether or not \code{f} is vectorised.
 #' If \code{f} is vectorised, it should take as its first input a
 #' list of potential previous states,
 #' with its second input being the new state, as before.
 #' It should then return a numeric vector corresponding to the
 #' transition cost associated with each potential previous state.
+#'
+#' @param symmetric
+#' (Logical scalar)
+#' Whether \code{f} is symmetric, meaning that it returns
+#' the same result when transitioning forwards or backwards
+#' between two states.
+#'
+#' @param has_reverse
+#' (Logical scalar)
+#' If \code{reverse == TRUE}, the cost function \code{f} should have an
+#' optional argument \code{reverse} which defaults to \code{FALSE},
+#' which when set to \code{TRUE} instructs the cost function
+#' to compute the transition cost "backwards",
+#' as if proceeding from the continuation to the context.
+#'
 #' @return An object of class \code{cost_fun}, to be combined into a list
 #' and passed to \code{seq_opt()}.
 #' @export
@@ -45,6 +61,13 @@ cost_fun <- function(f,
   f
 }
 
+#' Is vectorised?
+#'
+#' Checks whether a cost function is vectorised.
+#'
+#' @param x Object to check.
+#' @return Logical scalar.
+#'
 #' @export
 is_vectorised <- function(x) {
   vectorised <- attr(x, "vectorised")
@@ -53,6 +76,13 @@ is_vectorised <- function(x) {
   vectorised
 }
 
+#' Is context-sensitive?
+#'
+#' Checks whether a cost function is context-sensitive.
+#'
+#' @param x Object to check.
+#' @return Logical scalar.
+#'
 #' @export
 is_context_sensitive <- function(x) {
   context_sensitive <- attr(x, "context_sensitive")
@@ -61,6 +91,13 @@ is_context_sensitive <- function(x) {
   context_sensitive
 }
 
+#' Is symmetric?
+#'
+#' Checks whether a cost function is symmetric.
+#'
+#' @param x Object to check.
+#' @return Logical scalar.
+#'
 #' @export
 is_symmetric <- function(x) {
   symmetric <- attr(x, "symmetric")
@@ -69,6 +106,13 @@ is_symmetric <- function(x) {
   symmetric
 }
 
+#' Has reverse?
+#'
+#' Checks whether an object has an "as_reverse" attribute.
+#'
+#' @param x Object to check
+#' @return Logical scalar.
+#'
 #' @export
 has_reverse <- function(x) {
   has_reverse <- attr(x, "has_reverse")
