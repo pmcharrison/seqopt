@@ -24,6 +24,9 @@ when some of the cost functions are context-independent
 (i.e. the cost associated with moving to a state is independent of
 the previous state).}
 
+\item{verbose}{(Logical scalar)
+Whether to display progress messages.}
+
 \item{exp_cost}{(Logical scalar)
 Whether the combined cost function should be exponentiated.}
 

@@ -20,7 +20,8 @@
 #' when some of the cost functions are context-independent
 #' (i.e. the cost associated with moving to a state is independent of
 #' the previous state).
-#' @param verbose
+#' @param verbose (Logical scalar)
+#' Whether to display progress messages.
 #' @param norm_cost (Logical scalar)
 #' Whether or not the cost at each transition
 #' (conditioned on the previous state)
