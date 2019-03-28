@@ -1,4 +1,6 @@
-# seqopt 0.2.1.9000
+# seqopt 0.3.0
+
+* Redeveloping package in tandem with the `voicer` package.
 
 # seqopt 0.2.1
 
