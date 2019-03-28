@@ -17,7 +17,8 @@ Imports:
     methods,
     checkmate (>= 1.8.5),
     utils,
-    memoise (>= 1.1.0)
+    memoise (>= 1.1.0),
+    magrittr
 URL: https://github.com/pmcharrison/seqopt
 BugReports: https://github.com/pmcharrison/seqopt/issues
 ByteCompile: true
