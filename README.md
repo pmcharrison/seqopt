@@ -1,22 +1,28 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-seqopt v0.2.1
-=============
 
-[![Travis build status](https://travis-ci.com/pmcharrison/seqopt.svg?branch=master)](https://travis-ci.org/pmcharrison/seqopt) [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/pmcharrison/seqopt?branch=master&svg=true)](https://ci.appveyor.com/project/pmcharrison/seqopt) [![Coverage status](https://coveralls.io/repos/github/pmcharrison/seqopt/badge.svg)](https://coveralls.io/r/pmcharrison/seqopt?branch=master)
+# seqopt
 
-`seqopt` is an R package for finding optimal sequences with dynamic programming. Given a list of timepoints and corresponding lists of possible states, `seq_opt()` efficiently finds an optimal state sequence that minimises an arbitrary transition cost function.
+[![Travis build
+status](https://travis-ci.com/pmcharrison/seqopt.svg?branch=master)](https://travis-ci.org/pmcharrison/seqopt)
+[![AppVeyor build
+status](https://ci.appveyor.com/api/projects/status/github/pmcharrison/seqopt?branch=master&svg=true)](https://ci.appveyor.com/project/pmcharrison/seqopt)
+[![Coverage
+status](https://coveralls.io/repos/github/pmcharrison/seqopt/badge.svg)](https://coveralls.io/r/pmcharrison/seqopt?branch=master)
 
-Installation
-------------
+`seqopt` is an R package for finding optimal sequences with dynamic
+programming. Given a list of timepoints and corresponding lists of
+possible states, `seq_opt()` efficiently finds an optimal state sequence
+that minimises an arbitrary transition cost function.
+
+## Installation
 
 ``` r
 if (!require(devtools)) install.packages("devtools")
 devtools:install_github("pmcharrison/seqopt")
 ```
 
-Examples
---------
+## Examples
 
 ``` r
 library(seqopt)
