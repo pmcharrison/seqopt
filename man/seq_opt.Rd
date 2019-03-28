@@ -4,8 +4,8 @@
 \alias{seq_opt}
 \title{Find optimal sequence}
 \usage{
-seq_opt(x, cost_funs, weights = 1, verbose = FALSE,
-  norm_cost = FALSE, exponentiate = FALSE, minimise = TRUE)
+seq_opt(x, cost_funs, weights = 1, verbose = FALSE, exp_cost = FALSE,
+  norm_cost = FALSE, log_cost = FALSE, minimise = TRUE)
 }
 \arguments{
 \item{x}{A nested list describing the possible states at the possible time points.
@@ -24,15 +24,15 @@ when some of the cost functions are context-independent
 (i.e. the cost associated with moving to a state is independent of
 the previous state).}
 
+\item{exp_cost}{(Logical scalar)
+Whether the combined cost function should be exponentiated.}
+
 \item{norm_cost}{(Logical scalar)
 Whether or not the cost at each transition
 (conditioned on the previous state)
 should be normalised to sum to 1
 for the set of possible continuations.
 This yields a probabilistic interpretation of the cost function.}
-
-\item{exponentiate}{(Logical scalar)
-Whether the combined cost function should be exponentiated.}
 
 \item{minimise}{(Logical scalar)
 Whether the cost function should be minimised or maximised.}
